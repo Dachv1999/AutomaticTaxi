@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from ManageCounts.models import Customer
+from ManageEnterprise.models import Enterprise
 from django.db.models.deletion import CASCADE 
 
 class Vehicle(models.Model):
@@ -17,8 +18,9 @@ class Vehicle(models.Model):
     year          = models.PositiveIntegerField(default=2023,  validators=[MinValueValidator(1990), MaxValueValidator(2023)])
     cleaning      = models.PositiveIntegerField(default=100,  validators=[MinValueValidator(0), MaxValueValidator(100)])
     mileage       = models.PositiveIntegerField()   
-    tax           = models.DecimalField(max_digits=5, decimal_places=2)
+    tax           = models.DecimalField(max_digits=8, decimal_places=2)
     location      = models.CharField(max_length=80)
+    id_enterprise = models.ForeignKey(Enterprise,on_delete=CASCADE, null=True)
     created_at    = models.DateTimeField(auto_now_add=True)
     updated_at    = models.DateTimeField(auto_now=True)
 
@@ -35,7 +37,7 @@ class Transaction(models.Model):
     arrival_time    = models.DateTimeField()
     rating          = models.PositiveIntegerField(default=100, validators=[MinValueValidator(0), MaxValueValidator(100)])
     distance        = models.PositiveIntegerField() 
-    price           = models.DecimalField(max_digits=5 ,decimal_places=2)
+    price           = models.DecimalField(max_digits=8 ,decimal_places=2)
     comment         = models.CharField(max_length=100)
     created_at      = models.DateTimeField(auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True)

@@ -7,6 +7,7 @@ class Enterprise(models.Model):
     email           = models.EmailField(max_length=80, unique=True)
     budget          = models.DecimalField(max_digits=5, decimal_places=2)
     location        = models.CharField(max_length=80)
+    taxes           = models.DecimalField(max_digits=8, decimal_places=2, null=True) 
     created_at      = models.DateTimeField(auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True)
     
@@ -17,7 +18,7 @@ class Invoice(models.Model):
     nit          = models.PositiveIntegerField(primary_key=True ,validators=[MinValueValidator(10000), MaxValueValidator(99999)])
     id_empresa   = models.ForeignKey(Enterprise,on_delete=CASCADE)
     service_desc = models.CharField(max_length=100)
-    price        = models.DecimalField(max_digits=5, decimal_places=2)
+    price        = models.DecimalField(max_digits=8, decimal_places=2)
     created_at   = models.DateTimeField(auto_now_add=True)
     updated_at   = models.DateTimeField(auto_now=True)
     

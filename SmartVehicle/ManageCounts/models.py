@@ -3,8 +3,8 @@ from ManageEnterprise.models import Enterprise
 from django.db.models.deletion import CASCADE
 
 class Wallet(models.Model):
-    code = models.CharField(max_length=50)
-    money = models.CharField(max_length=30)
+    code  = models.CharField(max_length=50)
+    money = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self):
         return self.code
@@ -41,5 +41,5 @@ class Owner (Person):
     id_enterprise = models.ForeignKey(Enterprise,on_delete=CASCADE)
 
     def __str__(self):
-        return self.nombre
+        return self.name
     
