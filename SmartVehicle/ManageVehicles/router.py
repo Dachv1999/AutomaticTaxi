@@ -1,6 +1,10 @@
 from rest_framework.routers import DefaultRouter
 from .api import VehicleViewSet, TransactionViewSet
 
+####################################################################
+##                  Arma las rutas para el CRUD                   ## 
+####################################################################
+
 router_vehicle   = DefaultRouter()
 router_transaction = DefaultRouter()
 

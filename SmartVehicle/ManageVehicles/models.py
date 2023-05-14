@@ -35,7 +35,7 @@ class Transaction(models.Model):
     arrival_place   = models.CharField(max_length=80)
     departure_time  = models.DateTimeField()
     arrival_time    = models.DateTimeField()
-    rating          = models.PositiveIntegerField(default=100, validators=[MinValueValidator(0), MaxValueValidator(100)])
+    rating          = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(5)])
     distance        = models.PositiveIntegerField() 
     price           = models.DecimalField(max_digits=8 ,decimal_places=2)
     comment         = models.CharField(max_length=100)

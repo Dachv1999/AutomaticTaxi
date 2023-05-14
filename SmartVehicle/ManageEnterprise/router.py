@@ -1,6 +1,10 @@
 from rest_framework.routers import DefaultRouter
 from .api import EnterpriseViewSet, InvoiceViewSet
 
+####################################################################
+##                  Arma las rutas para el CRUD                   ## 
+####################################################################
+
 router_enterprise   = DefaultRouter()
 router_invoice      = DefaultRouter()
 

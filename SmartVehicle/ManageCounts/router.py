@@ -1,6 +1,10 @@
 from rest_framework.routers import DefaultRouter
 from .api import WalletViewSet, CustomerViewSet, OwnerViewSet
 
+####################################################################
+##                  Arma las rutas para el CRUD                   ## 
+####################################################################
+
 router_wallet   = DefaultRouter()
 router_customer = DefaultRouter()
 router_owner    = DefaultRouter()
