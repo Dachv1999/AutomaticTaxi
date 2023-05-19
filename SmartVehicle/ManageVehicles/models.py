@@ -1,6 +1,7 @@
 from django.db import models
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
-from ManageCounts.models import Customer
+from ManageCounts.models import Person
 from ManageEnterprise.models import Enterprise
 from django.db.models.deletion import CASCADE 
 
@@ -8,7 +9,7 @@ class Vehicle(models.Model):
     State         = (('B', "Bueno"), ('R', "Regular"), ('M', "Malo"))
     plate         = models.CharField(primary_key=True, max_length=50)
     vehicle_state = models.CharField(default='B', choices=State, max_length=1)
-    fuel          = models.PositiveIntegerField(default=100,  validators=[MinValueValidator(0), MaxValueValidator(100)])
+    batery        = models.PositiveIntegerField(default=100,  validators=[MinValueValidator(0), MaxValueValidator(100)])
     oil           = models.PositiveIntegerField(default=100,  validators=[MinValueValidator(0), MaxValueValidator(100)])
     tire_1        = models.PositiveIntegerField(default=100,  validators=[MinValueValidator(0), MaxValueValidator(100)])
     tire_2        = models.PositiveIntegerField(default=100,  validators=[MinValueValidator(0), MaxValueValidator(100)])
@@ -19,7 +20,8 @@ class Vehicle(models.Model):
     cleaning      = models.PositiveIntegerField(default=100,  validators=[MinValueValidator(0), MaxValueValidator(100)])
     mileage       = models.PositiveIntegerField()   
     tax           = models.DecimalField(max_digits=8, decimal_places=2)
-    location      = models.CharField(max_length=80)
+    longitud      = models.CharField(max_length=80, blank=True, null=True)
+    latitud       = models.CharField(max_length=80, blank=True, null=True)
     id_enterprise = models.ForeignKey(Enterprise,on_delete=CASCADE, null=True)
     created_at    = models.DateTimeField(auto_now_add=True)
     updated_at    = models.DateTimeField(auto_now=True)
@@ -30,7 +32,7 @@ class Vehicle(models.Model):
 
 class Transaction(models.Model):
     plate_vehicle   = models.ForeignKey(Vehicle,on_delete=CASCADE)
-    ci_customer     = models.ForeignKey(Customer,on_delete=CASCADE)
+    customer        = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, null=True)
     departure_place = models.CharField(max_length=80)
     arrival_place   = models.CharField(max_length=80)
     departure_time  = models.DateTimeField()

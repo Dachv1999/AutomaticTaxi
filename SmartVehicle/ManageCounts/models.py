@@ -1,45 +1,102 @@
 from django.db import models
-from ManageEnterprise.models import Enterprise
-from django.db.models.deletion import CASCADE
+from django.utils import timezone
+from django.conf import settings
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
-class Wallet(models.Model):
-    code  = models.CharField(max_length=255, unique=True )
-    money = models.DecimalField(max_digits=8, decimal_places=2)
+####################################################################
+##          Funciones object para crear user y suoeruser          ## 
+####################################################################
 
-    def __str__(self):
-        return self.code
+class UsuarioManager(BaseUserManager): 
+    
+    def create_user(self, ci, email, password=None):
+        if not email:
+            raise ValueError('El usuario debe tener un correo electronico!')
 
-class Person(models.Model):
+        user = self.model(
+            ci       = ci,
+            email    = self.normalize_email(email),
+            password = password,
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, ci, email, password=None):
+
+        user = self.create_user(
+            ci       = ci,
+            email    = self.normalize_email(email),
+            password = password,
+        )
+        user.is_superuser = True
+        user.is_staff = True
+        user.save(using=self._db)
+        return user
+
+
+############################################################################
+##      Overide de la clase User para definir mis propios atributos       ## 
+############################################################################
+
+class Person(AbstractBaseUser):
     ci            = models.PositiveIntegerField(primary_key=True)
-    name          = models.CharField(max_length=50)
-    lastname      = models.CharField(max_length=50)
-    date_birth    = models.DateField()
-    city          = models.CharField(max_length=15)
+    name          = models.CharField(max_length=50, blank=True, null=True)
+    lastname      = models.CharField(max_length=50, blank=True, null=True)
+    cuenta        = models.CharField(max_length=255, unique=True, null=True)
+    private_key   = models.CharField(max_length=255, unique=True, null=True)
+    city          = models.CharField(max_length=15, blank=True, null=True)
     email         = models.EmailField(max_length=80, unique=True)
-    password      = models.CharField(max_length=50)
-    home          = models.CharField(max_length=50)
+    home          = models.CharField(max_length=50, blank=True, null=True)
+    is_active     = models.BooleanField(default=True)
+    is_superuser  = models.BooleanField(default=False)
+    is_staff      = models.BooleanField(default=False)
+    longitud      = models.CharField(max_length=80, blank=True, null=True)
+    latitud       = models.CharField(max_length=80, blank=True, null=True)
+
+    date_joined   = models.DateTimeField(default=timezone.now)
+    last_login    = models.DateTimeField(blank=True, null=True)
+
     created_at    = models.DateTimeField(auto_now_add=True)
     updated_at    = models.DateTimeField(auto_now=True)
+    objects       = UsuarioManager() 
+
+    USERNAME_FIELD  = 'email'
+    EMAIL_FIELD     = 'email'
+    REQUIRED_FIELDS = ['ci']
 
     def __str__(self):
-        return self.name
+        return str(self.name)
     
-    class Meta:
-        abstract = True
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return True
+    
+    """ @property
+    def is_staff(self):
+        return self.is_superuser """
 
 
-class Customer (Person):
-    location  = models.CharField(max_length=80)
-    is_Admin  = models.BooleanField(default=False)
-    id_wallet = models.ForeignKey(Wallet,on_delete=CASCADE, null=True)
+""" class Customer (models.Model):
+    user     = models.OneToOneField(Person, on_delete=models.CASCADE, primary_key=True)
+    longitud = models.CharField(max_length=80, blank=True, null=True)
+    latitud  = models.CharField(max_length=80, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
-class Owner (Person):
-    token         = models.CharField(max_length=255, unique=True)
+class Owner (models.Model):
+    user          = models.OneToOneField(Person, on_delete=models.CASCADE, primary_key=True)
+    token         = models.CharField(max_length=255, unique=True, blank=True, null=True)
     id_enterprise = models.ForeignKey(Enterprise,on_delete=CASCADE)
 
     def __str__(self):
-        return self.name
+        return self.name """
     

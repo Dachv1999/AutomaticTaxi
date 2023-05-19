@@ -1,7 +1,7 @@
 from django.contrib import admin
-from ManageCounts.models import Wallet, Customer, Owner
+from ManageCounts.models import Person
 
-admin.site.register(Wallet)
-admin.site.register(Customer)
-admin.site.register(Owner)
+admin.site.register(Person)
+#admin.site.register(Owner)
+#
 
