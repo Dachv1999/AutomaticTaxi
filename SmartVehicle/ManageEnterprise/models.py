@@ -8,14 +8,14 @@ class Enterprise(models.Model):
     cuenta          = models.CharField(max_length=255, unique=True, null=True)
     private_key     = models.CharField(max_length=255, unique=True, null=True)
     budget          = models.DecimalField(max_digits=8, decimal_places=2)
-    longitud        = models.CharField(max_length=80, blank=True, null=True)
-    latitud         = models.CharField(max_length=80, blank=True, null=True)
+    longitud        = models.FloatField(blank=True, null=True)
+    latitud         = models.FloatField(blank=True, null=True)
     taxes           = models.DecimalField(max_digits=8, decimal_places=2, null=True) 
     created_at      = models.DateTimeField(auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return self.name
+        return self.enterprise_name
 
 class Invoice(models.Model):
     nit          = models.PositiveIntegerField(primary_key=True ,validators=[MinValueValidator(10000), MaxValueValidator(99999)])

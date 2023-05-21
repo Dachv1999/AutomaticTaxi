@@ -52,8 +52,8 @@ class Person(AbstractBaseUser):
     is_active     = models.BooleanField(default=True)
     is_superuser  = models.BooleanField(default=False)
     is_staff      = models.BooleanField(default=False)
-    longitud      = models.CharField(max_length=80, blank=True, null=True)
-    latitud       = models.CharField(max_length=80, blank=True, null=True)
+    longitud      = models.FloatField(blank=True, null=True)
+    latitud       = models.FloatField(blank=True, null=True)
 
     date_joined   = models.DateTimeField(default=timezone.now)
     last_login    = models.DateTimeField(blank=True, null=True)
