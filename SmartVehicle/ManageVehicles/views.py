@@ -24,13 +24,12 @@ def getPriceTravel(request, latitud_user, longitud_user, latitud_arriv, longitud
         price = (traveldis * 5.1)+ (dict['distance'])
     
     price_eth = (price/6.92)/obtener_precio_eth()
-    
-    resp = {
+
+    return JsonResponse({
+        'status_code': 202,
         'precio_bs' : price,
         'precio_eth' : price_eth
-    }
-
-    return HttpResponse({json.dumps(resp)})
+    })
 
    
 
@@ -78,8 +77,8 @@ def obtener_precio_eth():
     return precio
 
 def setVehiclestatus(plate, distance):
-    vehicle = Vehicle.objects.get(plate = palte)
-    vehicle.mileage      += distance
+    vehicle = Vehicle.objects.get(plate = plate)
+    vehicle.mileage += distance
 
     if vehicle.year >= 2010 or vehicle.year < 2015:
 
@@ -120,4 +119,4 @@ def setVehiclestatus(plate, distance):
     #hacer un if para verificar si algunos niveles de los atributos estan medios o bajos
     #cambiar es estado del auto a Malo o Regular
 
-return True
+    return True
