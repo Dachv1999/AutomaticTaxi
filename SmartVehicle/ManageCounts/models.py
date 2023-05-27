@@ -9,14 +9,13 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 class UsuarioManager(BaseUserManager): 
     
-    def create_user(self, ci, email, password=None):
+    def create_user(self, ci, email, password):
         if not email:
             raise ValueError('El usuario debe tener un correo electronico!')
 
         user = self.model(
             ci       = ci,
             email    = self.normalize_email(email),
-            password = password,
         )
 
         user.set_password(password)
@@ -27,7 +26,7 @@ class UsuarioManager(BaseUserManager):
 
         user = self.create_user(
             ci       = ci,
-            email    = self.normalize_email(email),
+            email    = email,
             password = password,
         )
         user.is_superuser = True
