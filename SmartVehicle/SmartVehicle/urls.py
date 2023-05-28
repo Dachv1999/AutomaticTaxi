@@ -5,7 +5,7 @@ from ManageCounts.router import router_person
 from ManageEnterprise.router import router_enterprise, router_invoice
 from ManageVehicles.router import router_vehicle, router_transaction
 from ManageCounts.views import login, logout
-from ManageVehicles.views import getPriceTravel
+from ManageVehicles.views import getPriceTravel, endTravelplate, repairFails
 
 register_converter(converters.FloatUrlParameterConverter, 'float')
 
@@ -20,5 +20,7 @@ urlpatterns = [
     path('api/', include(router_transaction.urls)),
     path('login/', login),
     path('logout/', logout),
-    path('getPrice/<str:latitud_user>/<str:longitud_user>/<str:latitud_arriv>/<str:longitud_arriv>', getPriceTravel)
+    path('getPrice/<str:latitud_user>/<str:longitud_user>/<int:traveldis>/', getPriceTravel),
+    path('endTravel/<str:plate>/<int:distance>/', endTravelplate),
+    path('repair/<int:id_invoice>/<str:plate>/', repairFails)
 ]

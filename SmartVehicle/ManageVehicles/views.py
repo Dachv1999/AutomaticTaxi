@@ -14,17 +14,17 @@ from ManageEnterprise.serializers import InvoiceSerializer
 
 
 @api_view(['GET'])
-def getPriceTravel(request, latitud_user, longitud_user, latitud_arriv, longitud_arriv):
+def getPriceTravel(request, latitud_user, longitud_user, traveldis):
     
-    traveldis = calcular_distancia(float(latitud_user), float(longitud_user), float(latitud_arriv), float(longitud_arriv))
+    traveldis /= 1000
     dict = getNearVehicle(float(latitud_user), float(longitud_user))
     
     vehicle = Vehicle.objects.get(plate = dict['plate'])
 
-    if vehicle.year >= 2010 or vehicle.year < 2015:  
+    if vehicle.model == "Tesla Model X":  
         price = (traveldis * 4) + (dict['distance'])
 
-    elif vehicle.year >= 2015 or vehicle.year < 2020:
+    elif vehicle.model == "Tesla Model 3":
         price = (traveldis * 4.5) + (dict['distance'])
     else:
         price = (traveldis * 5.1)+ (dict['distance'])
@@ -33,8 +33,8 @@ def getPriceTravel(request, latitud_user, longitud_user, latitud_arriv, longitud
 
     return JsonResponse({
         'status_code': status.HTTP_200_OK,
-        'precio_bs' : price,
-        'precio_eth' : price_eth
+        'precio_bs' : round(price, 1),
+        'precio_eth' : round(price_eth,5)
     })
 
 
@@ -201,12 +201,25 @@ def sendToTechnician(fail_list, plate):
 def repairFails(id_invoice, plate):
 
     vehicle = Vehicle.objects.get(plate = plate)
-    vehicle.is_free = True
-    #arreglar todo lo qe esta en la factura
-    vehicle.save()
-
     invoice = Invoice.objects.get(id = id_invoice)
+    
+    if "Batery low" in invoice.service_desc:
+        vehicle.batery = 100
+    if "Flat tire" in invoice.service_desc:
+        vehicle.tire_1 = 100 
+        vehicle.tire_2 = 100
+        vehicle.tire_3 = 100
+        vehicle.tire_4 = 100
+    if "Brake failure" in invoice.service_desc:
+        vehicle.brake_system = 100
+    if "Suspension failure" in invoice.service_desc:
+        vehicle.suspension = 100
+    if "Dirty vehicle" in invoice.service_desc:
+        vehicle.cleaning = 100
+
+    vehicle.is_free = True
     invoice.is_pay = True
+    vehicle.save()
     invoice.save()
 
     #Pagar y ejecutar smart contract

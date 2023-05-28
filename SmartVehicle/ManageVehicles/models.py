@@ -33,8 +33,10 @@ class Vehicle(models.Model):
 
 
 class Transaction(models.Model):
+    Travel         = (('V', "Vaje"), ('D', "Delivery"), ('O', "Otros"))
     plate_vehicle   = models.ForeignKey(Vehicle,on_delete=CASCADE)
     customer        = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, null=True)
+    travel_type     = models.CharField(default='V', choices=Travel, max_length=1)
     departure_place_lat  = models.FloatField(blank=True, null=True)
     departure_place_long = models.FloatField(blank=True, null=True)
     arrival_place_lat    = models.FloatField(blank=True, null=True)
