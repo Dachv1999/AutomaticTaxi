@@ -34,7 +34,9 @@ def getPriceTravel(request, latitud_user, longitud_user, traveldis):
     return JsonResponse({
         'status_code': status.HTTP_200_OK,
         'precio_bs' : round(price, 1),
-        'precio_eth' : round(price_eth,5)
+        'precio_eth' : round(price_eth,5),
+        'plate' : vehicle.plate,
+        'model' : vehicle.model
     })
 
 
