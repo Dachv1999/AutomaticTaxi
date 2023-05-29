@@ -33,9 +33,9 @@ class Vehicle(models.Model):
 
 
 class Transaction(models.Model):
-    Travel         = (('V', "Vaje"), ('D', "Delivery"), ('O', "Otros"))
+    Travel         = (('V', "Viaje"), ('D', "Delivery"), ('O', "Otros"))
     plate_vehicle   = models.ForeignKey(Vehicle,on_delete=CASCADE)
-    customer        = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, null=True)
+    customer        = models.ForeignKey(Person,on_delete=models.CASCADE, null=True)
     travel_type     = models.CharField(default='V', choices=Travel, max_length=1)
     departure_place_lat  = models.FloatField(blank=True, null=True)
     departure_place_long = models.FloatField(blank=True, null=True)
@@ -46,7 +46,7 @@ class Transaction(models.Model):
     rating          = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(5)])
     distance        = models.PositiveIntegerField() 
     price           = models.DecimalField(max_digits=8 ,decimal_places=2)
-    comment         = models.CharField(max_length=100)
+    comment         = models.CharField(max_length=100, blank=True, null=True)
     created_at      = models.DateTimeField(auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True)
 

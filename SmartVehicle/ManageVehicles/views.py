@@ -7,16 +7,73 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
 
-from .models import Vehicle
+from .models import Vehicle, Transaction
 
 from ManageEnterprise.models import Enterprise, Invoice
+from ManageCounts.models import Person
 from ManageEnterprise.serializers import InvoiceSerializer
 
+
+@api_view(['POST'])
+def startTravel(request):
+    received_json_data = json.loads(request.body.decode("utf-8")) #Obtener el JSON
+    plate          = received_json_data['plate_vehicle']
+    id_customer    = received_json_data['id_customer']
+    type           = received_json_data['type']
+    departure_lat  = received_json_data['departure_lat']
+    departure_lng  = received_json_data['departure_lng']
+    arrival_lat    = received_json_data['arrival_lat']
+    arrival_lng    = received_json_data['arrival_lng']
+    departure_time = received_json_data['departure_time']
+    arrival_time   = received_json_data['arrival_time']
+    distance       = received_json_data['distance']
+    price          = received_json_data['price']
+
+    try: 
+        vehicle = Vehicle.objects.get(plate = plate)
+    except Vehicle.DoesNotExist:
+        return JsonResponse({
+            'status_code': status.HTTP_400_BAD_REQUEST,
+            'msg': 'Vehiculo no existe'
+        })
+    
+    try: 
+        person = Person.objects.get(ci = id_customer)
+    except Person.DoesNotExist:
+        return JsonResponse({
+            'status_code': status.HTTP_400_BAD_REQUEST,
+            'msg': 'Usuario no existe'
+        })
+
+    transaction = Transaction()
+    transaction.plate_vehicle = vehicle
+    transaction.customer = person
+    transaction.travel_type = type
+    transaction.departure_place_lat = departure_lat
+    transaction.departure_place_long = departure_lng
+    transaction.arrival_place_lat = arrival_lat
+    transaction.arrival_place_long = arrival_lng
+    transaction.departure_time = departure_time
+    transaction.arrival_time = arrival_time
+    transaction.distance = distance
+    transaction.price = price
+    transaction.save()
+
+    
+
+    vehicle.is_free = False
+    vehicle.save()
+
+    return Response({
+        'status_code': status.HTTP_201_CREATED,
+        'msg': 'Transaction creada'
+    })
 
 @api_view(['GET'])
 def getPriceTravel(request, latitud_user, longitud_user, traveldis):
     
     traveldis /= 1000
+    print("entra")
     dict = getNearVehicle(float(latitud_user), float(longitud_user))
     
     vehicle = Vehicle.objects.get(plate = dict['plate'])
@@ -47,7 +104,7 @@ def getNearVehicle(latitud_user, longitud_user):
     for vehicle in Vehicle.objects.all():
         distancia = calcular_distancia(vehicle.latitud, vehicle.longitud, latitud_user, longitud_user)
         
-        if (distancia < distancia_menor):
+        if (distancia < distancia_menor) and (vehicle.is_free != False):
             distancia_menor = distancia
             placa = vehicle.plate
 
@@ -82,8 +139,11 @@ def obtener_precio_eth():
     precio = data['ethereum']['usd']
     return precio
 
-@api_view(['GET'])
-def endTravelplate(plate, distance):
+@api_view(['POST'])
+def endTravelplate(request):
+    received_json_data = json.loads(request.body.decode("utf-8")) #Obtener el JSON
+    plate = received_json_data['plate']
+    distance = received_json_data['distance']
     #En front se debe pagar el viaje
     setVehiclestatus(plate, distance)#actualizar datos segun el recorrido hecho
     fail_list = checkVehicleStatus(plate) #obtenemos una lsta de errores, por si tenemos que enviar al taller algo
@@ -91,6 +151,7 @@ def endTravelplate(plate, distance):
     if len(fail_list) > 0:
         return sendToTechnician(fail_list, plate)
     
+    print(fail_list)
     return Response({
         'status_code': status.HTTP_200_OK,
         'msg': 'Viaje terminado'
@@ -100,7 +161,18 @@ def endTravelplate(plate, distance):
 
 def setVehiclestatus(plate, distance):
     vehicle = Vehicle.objects.get(plate = plate)
+
+    try: 
+        vehicle = Vehicle.objects.get(plate = plate)
+    except Vehicle.DoesNotExist:
+        return JsonResponse({
+            'status_code': status.HTTP_400_BAD_REQUEST,
+            'msg': 'Vehiculo no existe'
+        })
+    
+    distance /= 1000
     vehicle.mileage += distance
+    vehicle.is_free = True
 
     if vehicle.model == "Tesla Model X":
 
@@ -143,7 +215,7 @@ def checkVehicleStatus(plate):
     if vehicle.tire_1 < 5:
         fails_list.append("Flat tire")
 
-    if vehicle.break_system < 8:
+    if vehicle.brake_system < 8:
         fails_list.append("Brake failure")
 
     if vehicle.suspension < 5:
@@ -157,6 +229,7 @@ def checkVehicleStatus(plate):
 def sendToTechnician(fail_list, plate):
     vehicle = Vehicle.objects.get(plate = plate)
     vehicle.is_free = False
+    vehicle.vehicle_state = 'R'
     vehicle.save()
 
     aux = price = 0
@@ -199,12 +272,31 @@ def sendToTechnician(fail_list, plate):
     })
     
 
-@api_view(['GET'])
-def repairFails(id_invoice, plate):
+@api_view(['POST'])
+def repairFails(request):
 
-    vehicle = Vehicle.objects.get(plate = plate)
-    invoice = Invoice.objects.get(id = id_invoice)
+    received_json_data = json.loads(request.body.decode("utf-8")) #Obtener el JSON
+    id_invoice = received_json_data['id_invoice']
+    plate = received_json_data['plate']
+
+    try: 
+        vehicle = Vehicle.objects.get(plate = plate)
+    except Vehicle.DoesNotExist:
+        return JsonResponse({
+            'status_code': status.HTTP_400_BAD_REQUEST,
+            'msg': 'Vehiculo no existe'
+        })
     
+    try:
+        invoice = Invoice.objects.get(id = id_invoice)
+    except Invoice.DoesNotExist:
+        return JsonResponse({
+            'status_code': status.HTTP_400_BAD_REQUEST,
+            'msg': 'Factura no encontrada'
+        })
+
+
+
     if "Batery low" in invoice.service_desc:
         vehicle.batery = 100
     if "Flat tire" in invoice.service_desc:
@@ -220,6 +312,7 @@ def repairFails(id_invoice, plate):
         vehicle.cleaning = 100
 
     vehicle.is_free = True
+    vehicle.vehicle_state = 'B'
     invoice.is_pay = True
     vehicle.save()
     invoice.save()

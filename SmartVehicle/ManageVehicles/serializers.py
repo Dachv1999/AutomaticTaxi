@@ -11,5 +11,5 @@ class VehicleSerializer(serializers.ModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Transaction
-        fields = ['id','plate_vehicle','customer','departure_place_lat','departure_place_long','arrival_place_lat','arrival_place_long','departure_time','arrival_time','rating','distance','price','comment','created_at','updated_at']
+        fields = ['id','plate_vehicle','customer','travel_type','departure_place_lat','departure_place_long','arrival_place_lat','arrival_place_long','departure_time','arrival_time','rating','distance','price','comment','created_at','updated_at']
         read_onty_fields = ('created_at', 'updated_at',)
