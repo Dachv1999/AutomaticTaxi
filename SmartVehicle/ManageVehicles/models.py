@@ -41,16 +41,24 @@ class Transaction(models.Model):
     departure_place_long = models.FloatField(blank=True, null=True)
     arrival_place_lat    = models.FloatField(blank=True, null=True)
     arrival_place_long   = models.FloatField(blank=True, null=True)
-    departure_time  = models.DateTimeField()
-    arrival_time    = models.DateTimeField()
+    departure_time  = models.DateTimeField(blank=True, null=True)
+    arrival_time    = models.DateTimeField(blank=True, null=True)
     rating          = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(5)])
-    distance        = models.PositiveIntegerField() 
-    price           = models.DecimalField(max_digits=8 ,decimal_places=2)
+    distance        = models.PositiveIntegerField(default=0) 
+    price           = models.DecimalField(max_digits=8 ,decimal_places=2, blank=True, null=True)
     comment         = models.CharField(max_length=100, blank=True, null=True)
     created_at      = models.DateTimeField(auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True)
 
-
+    def __str__(self):
+        return str(self.price)
+    
+class Transaction_extended(models.Model):
+    
+    transaction_id = models.ForeignKey(Transaction, on_delete = models.CASCADE)
+    
+    def __str__(self):
+        return str(self.transaction_id)
 
 
 

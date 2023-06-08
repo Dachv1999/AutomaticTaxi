@@ -16,13 +16,14 @@ class UsuarioManager(BaseUserManager):
         user = self.model(
             ci       = ci,
             email    = self.normalize_email(email),
+            password = password,
         )
-
-        user.set_password(password)
+        
+        #user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, ci, email, password=None):
+    def create_superuser(self, ci, email, password):
 
         user = self.create_user(
             ci       = ci,
@@ -31,6 +32,7 @@ class UsuarioManager(BaseUserManager):
         )
         user.is_superuser = True
         user.is_staff = True
+        user.is_active = True
         user.save(using=self._db)
         return user
 
@@ -40,11 +42,9 @@ class UsuarioManager(BaseUserManager):
 ############################################################################
 
 class Person(AbstractBaseUser):
-    ci            = models.PositiveIntegerField(primary_key=True)
+    ci            = models.AutoField(primary_key=True)
     name          = models.CharField(max_length=50, blank=True, null=True)
     lastname      = models.CharField(max_length=50, blank=True, null=True)
-    cuenta        = models.CharField(max_length=255, unique=True, null=True)
-    private_key   = models.CharField(max_length=255, unique=True, null=True)
     city          = models.CharField(max_length=15, blank=True, null=True)
     email         = models.EmailField(max_length=80, unique=True)
     home          = models.CharField(max_length=50, blank=True, null=True)

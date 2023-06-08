@@ -1,11 +1,11 @@
-""" from django.contrib import admin
+from django.contrib import admin
 from ManageCounts.models import Person
 
 admin.site.register(Person)
 #admin.site.register(Owner)
-# """
+#
 
-from django import forms
+""" from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -14,10 +14,12 @@ from django.core.exceptions import ValidationError
 
 from .models import Person
 
+#admin.site.register(Person)
+#admin.site.register(Owner)
 
 class UserCreationForm(forms.ModelForm):
-    """A form for creating new users. Includes all the required
-    fields, plus a repeated password."""
+  A form for creating new users. Includes all the required
+    fields, plus a repeated password.
 
     password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
     password2 = forms.CharField(
@@ -46,10 +48,10 @@ class UserCreationForm(forms.ModelForm):
 
 
 class UserChangeForm(forms.ModelForm):
-    """A form for updating users. Includes all the fields on
+    A form for updating users. Includes all the fields on
     the user, but replaces the password field with admin's
     disabled password hash display field.
-    """
+    
 
     password = ReadOnlyPasswordHashField()
 
@@ -93,5 +95,5 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(Person, UserAdmin)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
-admin.site.unregister(Group)
+admin.site.unregister(Group) """
 

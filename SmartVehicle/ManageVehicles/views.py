@@ -1,14 +1,19 @@
 import math
 import json
 import requests
+import pytz
 from django.shortcuts import render
 from rest_framework import status
+from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
+from datetime import datetime, timedelta
+
+
 
 from .models import Vehicle, Transaction
-
+from .serializers import TransactionSerializer, AllTransactionSerializer
 from ManageEnterprise.models import Enterprise, Invoice
 from ManageCounts.models import Person
 from ManageEnterprise.serializers import InvoiceSerializer
@@ -24,8 +29,8 @@ def startTravel(request):
     departure_lng  = received_json_data['departure_lng']
     arrival_lat    = received_json_data['arrival_lat']
     arrival_lng    = received_json_data['arrival_lng']
-    departure_time = received_json_data['departure_time']
-    arrival_time   = received_json_data['arrival_time']
+    #departure_time = received_json_data['departure_time']
+    travel_time    = received_json_data['travelTime']
     distance       = received_json_data['distance']
     price          = received_json_data['price']
 
@@ -37,6 +42,12 @@ def startTravel(request):
             'msg': 'Vehiculo no existe'
         })
     
+    if vehicle.is_free == False:
+        return Response({
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'msg': 'El vehiculo esta ocupado'
+    })
+
     try: 
         person = Person.objects.get(ci = id_customer)
     except Person.DoesNotExist:
@@ -44,6 +55,12 @@ def startTravel(request):
             'status_code': status.HTTP_400_BAD_REQUEST,
             'msg': 'Usuario no existe'
         })
+
+    # Obtén el objeto datetime actual con el timezone deseado
+    timezone = pytz.timezone('America/La_Paz')
+    dt = datetime.now(timezone)
+
+    arrivalTime = dt + timedelta(minutes=int(travel_time))
 
     transaction = Transaction()
     transaction.plate_vehicle = vehicle
@@ -53,8 +70,8 @@ def startTravel(request):
     transaction.departure_place_long = departure_lng
     transaction.arrival_place_lat = arrival_lat
     transaction.arrival_place_long = arrival_lng
-    transaction.departure_time = departure_time
-    transaction.arrival_time = arrival_time
+    transaction.departure_time = dt
+    transaction.arrival_time = arrivalTime
     transaction.distance = distance
     transaction.price = price
     transaction.save()
@@ -323,3 +340,16 @@ def repairFails(request):
         'status_code': status.HTTP_202_ACCEPTED,
         'msg': 'Vehiculo reparado'
     })
+
+
+@api_view(['GET'])
+def getAllTransaction(request, ci_user):
+    
+    transactions = Transaction.objects.filter(customer=ci_user).order_by('created_at')
+    serializedData = TransactionSerializer(transactions, many=True)
+
+    return Response({
+        'status_code': status.HTTP_200_OK,
+        'transactions': serializedData.data
+    })
+

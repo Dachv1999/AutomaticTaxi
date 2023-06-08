@@ -4,8 +4,9 @@ from . import converters
 from ManageCounts.router import router_person
 from ManageEnterprise.router import router_enterprise, router_invoice
 from ManageVehicles.router import router_vehicle, router_transaction
-from ManageCounts.views import login, logout
-from ManageVehicles.views import getPriceTravel, endTravelplate, repairFails, startTravel
+from ManageCounts.views import login, logout, register
+from ManageEnterprise.views import getPayInvoice
+from ManageVehicles.views import getPriceTravel, endTravelplate, repairFails, startTravel, getAllTransaction
 
 register_converter(converters.FloatUrlParameterConverter, 'float')
 
@@ -20,9 +21,13 @@ urlpatterns = [
     path('api/', include(router_transaction.urls)),
     path('login/', login),
     path('logout/', logout),
+    path('register/', register),
     path('getPrice/<str:latitud_user>/<str:longitud_user>/<int:traveldis>/', getPriceTravel),
     path('startTravel/', startTravel),
     path('endTravel/', endTravelplate),
-    path('repair/', repairFails)
+    path('repair/', repairFails),
+
+    path('getAllTransaction/<int:ci_user>/', getAllTransaction),
+    path('getPayInvoice/', getPayInvoice)
     
 ]

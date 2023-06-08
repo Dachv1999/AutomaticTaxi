@@ -1,14 +1,20 @@
-from .models import Enterprise, Invoice
+from .models import Enterprise, Invoice, Invoice_extended
 from rest_framework import serializers
 
 class EnterpriseSerializer(serializers.ModelSerializer):#clase para lo que el JSON devolvera
     class Meta:
         model  = Enterprise
         fields = ['id','enterprise_name','email','cuenta','private_key','budget','latitud','longitud','taxes','created_at','updated_at']
-        read_onty_fields = ('created_at', 'updated_at',) #atributos que no podra modificar
+        read_only_fields = ('created_at', 'updated_at',) #atributos que no podra modificar
 
 class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Invoice
-        fields = ['nit','id_empresa','service_desc','price','created_at','updated_at']
-        read_onty_fields = ('created_at', 'updated_at',)
+        fields = ['nit','id_empresa','service_desc','price','is_pay','created_at','updated_at']
+        read_only_fields = ('created_at', 'updated_at',)
+
+class AllInvoiceSerializer(serializers.ModelSerializer):
+    invoice_id = InvoiceSerializer(many=True)
+    class Meta:
+        model  = Invoice_extended
+        fields = ['invoice_id']

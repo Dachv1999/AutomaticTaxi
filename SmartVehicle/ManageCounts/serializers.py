@@ -4,14 +4,14 @@ from rest_framework import serializers
 class PersonSerializer(serializers.ModelSerializer):  #clase para lo que el JSON devolvera
     class Meta:
         model  = Person
-        fields = ['ci','name','lastname','cuenta','private_key','city','email','password','home','is_active','is_superuser','is_staff','latitud','longitud','created_at','updated_at']
-        read_onty_fields = ('created_at', 'updated_at',) #atributos que no podra modificar
+        fields = ['ci','name','lastname','city','email','password','home','is_active','is_superuser','is_staff','latitud','longitud','created_at','updated_at']
+        read_only_fields = ('created_at', 'updated_at',) #atributos que no podra modificar
 
 
 class PersonTokenSerializer(serializers.ModelSerializer):  #clase para lo que el JSON devolvera
     class Meta:
         model  = Person
-        fields = ['name','lastname','email','latitud','longitud']
+        fields = ['ci','name','lastname','email','latitud','longitud','is_superuser']
         
 
 """ class CustomerSerializer(serializers.ModelSerializer):  #clase para lo que el JSON devolvera

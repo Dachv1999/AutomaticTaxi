@@ -28,3 +28,10 @@ class Invoice(models.Model):
     
     def __str__(self):
         return self.nit
+    
+class Invoice_extended(models.Model):
+    
+    invoice_id = models.ForeignKey(Invoice, on_delete = models.CASCADE)
+    
+    def __str__(self):
+        return str(self.invoice_id)

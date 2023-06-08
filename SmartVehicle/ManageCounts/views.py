@@ -13,7 +13,42 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth.hashers import check_password
 
 from .models import Person
-from .serializers import PersonTokenSerializer
+from .serializers import PersonTokenSerializer, PersonSerializer
+
+@api_view(['POST'])
+def register(request):
+    received_json_data = json.loads(request.body.decode("utf-8")) #Obtener el JSON
+
+    name         = received_json_data['name']
+    lastname     = received_json_data['lastname']
+    city         = received_json_data['city']
+    email        = received_json_data['email']
+    password     = received_json_data['password']
+    is_superuser = received_json_data['is_superuser']
+    latitud      = received_json_data['latitud']
+    longitud     = received_json_data['longitud']
+
+    user = Person()
+
+    user.name = name
+    user.lastname = lastname
+    user.city = city
+    user.email = email
+    user.set_password(password)
+    user.is_superuser = is_superuser
+    user.latitud = latitud
+    user.longitud = longitud
+
+    user.save()
+
+    user_serializer = PersonSerializer(user)
+
+    return Response({
+        'status_code': status.HTTP_201_CREATED,
+        'msg': 'Usuario creado',
+        'user': user_serializer.data
+    })
+
 
 @api_view(['POST'])
 def login(request):
@@ -45,7 +80,7 @@ def login(request):
     user_serializer = PersonTokenSerializer(user)
     return Response({
         'status_code': status.HTTP_201_CREATED,
-        'msg': 'Votación terminada satisfactoriamente',
+        'msg': 'Inicio de Sesión satisfactoriamente',
         'user': user_serializer.data,
         'token': token.key
     })
