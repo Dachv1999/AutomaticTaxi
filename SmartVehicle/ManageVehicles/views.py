@@ -17,7 +17,7 @@ from .serializers import TransactionSerializer, AllTransactionSerializer
 from ManageEnterprise.models import Enterprise, Invoice
 from ManageCounts.models import Person
 from ManageEnterprise.serializers import InvoiceSerializer
-
+import random
 
 @api_view(['POST'])
 def startTravel(request):
@@ -353,3 +353,52 @@ def getAllTransaction(request, ci_user):
         'transactions': serializedData.data
     })
 
+@api_view(['GET'])
+def update_locations_randomly(request):
+
+    latitude_list = [-17.394463,-17.387392,-17.384231,-17.393765,-17.392677,-17.380754,
+                     -17.372584,-17.373146,-17.378830, -17.381868, -17.365388, -17.367477,
+                     -17.393857, -17.392563, -17.391498, -17.390653, -17.393213,-17.395048,
+                     -17.369676, -17.413872, -17.401449, -17.401948, -17.362938, -17.419227, -17.375818]
+    
+
+
+    longitude_list = [-66.149372, -66.148576,-66.158697, -66.156453, -66.158771, -66.151099,
+                      -66.162411, -66.149523, -66.142153,-66.118970, -66.160225, -66.148327, 
+                      -66.181945, -66.205707, -66.230271, -66.243657, -66.273251,-66.280533 ,
+                      -66.170389,  -66.178664, -66.175339, -66.157743, -66.147685, -66.131226, -66.151171 ]
+    
+    vehicules = Vehicle.objects.all()
+    m = len(latitude_list )
+    list_aux = []
+    
+    for vehicule in vehicules:
+       bandera = True
+       #Controlamos que el index no se repita
+       while(bandera):
+    
+           index = congruential_mix(m)
+   
+           if index not in list_aux:
+               #Si no se repite guardamos
+               vehicule.latitud = latitude_list[index]
+               vehicule.longitud = longitude_list[index]
+               vehicule.save()
+               list_aux.append(index)
+               bandera = False
+
+    return Response({
+        'status_code': status.HTTP_202_ACCEPTED,
+        'msg': 'Locations Updated'
+    })
+
+
+
+ 
+def congruential_mix(m):
+    seed = random.randint(0, 200) 
+    a = random.randint(1, 50)   
+    c = random.randint(1, 50)
+   
+    result = (a * seed + c) % m
+    return result
