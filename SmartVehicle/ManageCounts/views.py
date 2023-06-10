@@ -19,6 +19,7 @@ from .serializers import PersonTokenSerializer, PersonSerializer
 def register(request):
     received_json_data = json.loads(request.body.decode("utf-8")) #Obtener el JSON
 
+    ci           = received_json_data['ci']
     name         = received_json_data['name']
     lastname     = received_json_data['lastname']
     city         = received_json_data['city']
@@ -28,8 +29,10 @@ def register(request):
     latitud      = received_json_data['latitud']
     longitud     = received_json_data['longitud']
 
+    
     user = Person()
 
+    user.ci = ci
     user.name = name
     user.lastname = lastname
     user.city = city
