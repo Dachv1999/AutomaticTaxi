@@ -334,12 +334,60 @@ def repairFails(request):
     vehicle.save()
     invoice.save()
 
-    #Pagar y ejecutar smart contract
-
+    price_eth = (invoice.price/6.92)/obtener_precio_eth()  
+    execute_smartContract(price_eth)
     return Response({
         'status_code': status.HTTP_202_ACCEPTED,
         'msg': 'Vehiculo reparado'
     })
+
+def execute_smartContract(price):
+    from web3 import Web3
+    # Conectar a la instancia de Ganache
+    ganache_url = "http://localhost:7545"  # Cambia esta URL si tu instancia de Ganache utiliza un puerto diferente
+    web3 = Web3(Web3.HTTPProvider(ganache_url))
+
+    # Cargar la dirección y la clave privada del propietario de la cuenta
+    owner_address = "0xeCb3Dfb32B40810c72D07B49F63973E860Ac93A8"
+    owner_private_key = "07bd57ff34d1f7eeff9d1e8edc9a4060a77f38ec38635c44df1a4feb3732bc97"
+
+
+    # Cargar el contrato Solidity
+    contract_address = "0x2b96108C8CF861F47aBbfD47AfD44b9b7320eE79"
+    contract_abi =[
+	  {
+		"inputs": [],
+		"name": "Transaction",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "function"
+	   } 
+      ]
+    contract = web3.eth.contract(address=contract_address, abi=contract_abi)
+
+    #print (contract)
+    # Cantidad de ethers a enviar (en wei)
+    cantidad_wei = web3.to_wei(price, 'ether')
+
+
+    # Crear una transacción para llamar a la función del contrato
+    transaccion = contract.functions.Transaction().build_transaction({"gasPrice": web3.eth.gas_price,'from': owner_address, 'nonce': web3.eth.get_transaction_count(owner_address), 'value': cantidad_wei})
+
+    #print(transaccion)
+
+    # Firmar y enviar la transacción
+    signed_txn = web3.eth.account.sign_transaction(transaccion, private_key=owner_private_key)
+    tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+
+    # Esperar a que la transacción se confirme
+    tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+    print("Transacción confirmada:", tx_receipt) 
 
 
 @api_view(['GET'])
