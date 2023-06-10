@@ -10,6 +10,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
+from django.core.validators import validate_email, MinLengthValidator, MaxLengthValidator, RegexValidator
+from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import check_password
 
 from .models import Person
@@ -29,7 +31,31 @@ def register(request):
     latitud      = received_json_data['latitud']
     longitud     = received_json_data['longitud']
 
+    if validate_email_format(email) == False:
+        return Response({
+            'status': status.HTTP_406_NOT_ACCEPTABLE,
+            'msg': 'Formato de email inválido'
+        })
     
+    if personExistByEmail(email):
+        return Response({
+            'status': status.HTTP_409_CONFLICT,
+            'msg': 'Email existnte'
+        })
+
+    if personExistByCi(ci):
+        return Response({
+            'status': status.HTTP_409_CONFLICT,
+            'msg': 'CI existente'
+        })
+    
+
+    if validate_password_format(password) == False:
+        return Response({
+            'status': status.HTTP_400_BAD_REQUEST,
+            'msg': 'Contraseña invalida'
+        })
+
     user = Person()
 
     user.ci = ci
@@ -52,6 +78,41 @@ def register(request):
         'user': user_serializer.data
     })
 
+def validate_email_format(email):
+    try:
+        validate_email(email)
+        return True
+    except ValidationError:
+        return False
+
+def validate_password_format(password):
+    validators = [
+        MinLengthValidator(8, message='La contraseña debe tener al menos 8 caracteres.'),
+        MaxLengthValidator(20, message='La contraseña no puede exceder los 20 caracteres.'),
+        RegexValidator(r'^[a-zA-Z0-9_]*$', message='La contraseña solo puede contener letras, números y guiones bajos (_).'),
+    ]
+
+    for validator in validators:
+        try:
+            validator(password)
+        except ValidationError:
+            return False
+
+    return True
+
+def personExistByEmail(email):
+    try:
+        Person.objects.get(email = email)
+        return True
+    except:
+        return False
+    
+def personExistByCi(ci):
+    try:
+        Person.objects.get(ci = ci)
+        return True
+    except:
+        return False
 
 @api_view(['POST'])
 def login(request):
