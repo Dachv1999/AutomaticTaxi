@@ -1,22 +1,36 @@
-"""
-URL configuration for SmartVehicle project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include, register_converter
+from . import converters
+from ManageCounts.router import router_person
+from ManageEnterprise.router import router_enterprise, router_invoice
+from ManageEnterprise.views import create_pdf
+from ManageVehicles.router import router_vehicle, router_transaction
+from ManageCounts.views import login, logout, register
+from ManageEnterprise.views import getPayInvoice
+from ManageVehicles.views import getPriceTravel, endTravelplate, repairFails, startTravel, getAllTransaction, update_locations_randomly
+
+register_converter(converters.FloatUrlParameterConverter, 'float')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls')),
+
+    path('api/', include(router_person.urls)),
+    path('api/', include(router_enterprise.urls)),
+    path('api/', include(router_invoice.urls)),
+    path('api/', include(router_vehicle.urls)),
+    path('api/', include(router_transaction.urls)),
+    path('login/', login),
+    path('logout/', logout),
+    path('register/', register),
+    path('getPrice/<str:latitud_user>/<str:longitud_user>/<int:traveldis>/', getPriceTravel),
+    path('startTravel/', startTravel),
+    path('endTravel/', endTravelplate),
+    path('repair/', repairFails),
+
+    path('getAllTransaction/<int:ci_user>/', getAllTransaction),
+    path('getPayInvoice/', getPayInvoice),
+    path('createpdf/<int:id_invoice>/', create_pdf),
+    path('updatelocations/', update_locations_randomly)
+    
 ]
