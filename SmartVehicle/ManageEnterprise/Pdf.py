@@ -2,10 +2,15 @@ from fpdf import FPDF
 
 
 class PDF(FPDF):
+
+    def __init__(self, header_text):
+        super().__init__()
+        self.header_text = header_text
+
     def header(self):
         self.set_font('Times', 'BI', 13)
         #self.cell(0, 10, 'Repair Invoice', 1, 1, 'C')
-        self.cell(0, 10, 'Repair Invoice', align='C')
+        self.cell(0, 10, self.header_text , align='C')
         self.ln(20)
         self.image('reparacion.png', x=self.w - 30, y=5, w=20)
 
@@ -35,6 +40,13 @@ class PDF(FPDF):
         self.set_left_margin(35)
         self.multi_cell(0, 5, content)
         self.ln(1)
+
+    def chapter_price(self, content):
+        self.set_font('Times', 'I', 12)
+
+        self.set_left_margin(35)
+        self.multi_cell(0, 5, content)
+        self.ln(17)
 
 
     def chapter_body_line(self, content):
