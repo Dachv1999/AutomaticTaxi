@@ -60,7 +60,7 @@ def startTravel(request):
     timezone = pytz.timezone('America/La_Paz')
     dt = datetime.now(timezone)
 
-    arrivalTime = dt + timedelta(minutes=int(travel_time))
+    arrivalTime = dt + timedelta(minutes=int(travel_time)/60)
 
     transaction = Transaction()
     transaction.plate_vehicle = vehicle
@@ -72,7 +72,7 @@ def startTravel(request):
     transaction.arrival_place_long = arrival_lng
     transaction.departure_time = dt
     transaction.arrival_time = arrivalTime
-    transaction.distance = distance
+    transaction.distance = distance/1000
     transaction.price = price
     transaction.save()
 
@@ -249,7 +249,8 @@ def sendToTechnician(fail_list, plate):
     vehicle.vehicle_state = 'R'
     vehicle.save()
 
-    aux = price = 0
+    aux = 0
+    price = 0
 
     invoice = Invoice()
     invoice.nit = "cuenta harcodeada"
@@ -257,14 +258,14 @@ def sendToTechnician(fail_list, plate):
     
     for error in fail_list:
         if error == "Batery low":
-            aux = (100 - vehicle.batery)*0,66  #0,66 Bs vale el KWH en Bolivia
-            price += aux
+            aux = (100 - vehicle.batery)*0.66  #0,66 Bs vale el KWH en Bolivia
+            price += int(aux)
         if error == "Flat tire":
             aux =  (20*4)  #20bs por llanta inflada con nitrogeno
-            price += aux
+            price += int(aux)
         if error == "Brake failure":
             aux =  3500   #500$ costo promedio de arreglar en sistema de frenos
-            price += aux
+            price += int(aux)
         if error == "Suspension failure":
             aux =  7000   #1000$ costo promedio de arreglar el sistema de suspension
             price += aux
@@ -393,7 +394,15 @@ def execute_smartContract(price):
 @api_view(['GET'])
 def getAllTransaction(request, ci_user):
     
-    transactions = Transaction.objects.filter(customer=ci_user).order_by('created_at')
+
+    transactions = Transaction.objects.filter(customer=ci_user).order_by('-created_at')
+    formato_deseado = "%Y-%m-%d %H:%M"
+
+    for transaction in transactions:
+        transaction.departure_time = transaction.departure_time.strftime(formato_deseado)
+        transaction.arrival_time = transaction.arrival_time.strftime(formato_deseado)
+
+
     serializedData = TransactionSerializer(transactions, many=True)
 
     return Response({

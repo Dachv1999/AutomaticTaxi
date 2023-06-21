@@ -14,7 +14,18 @@ from .serializers import InvoiceSerializer, AllInvoiceSerializer
 @api_view(['GET'])
 def getPayInvoice(request):
     
-    invoices = Invoice.objects.filter(is_pay=True).order_by('updated_at')
+    invoices = Invoice.objects.filter(is_pay=True).order_by('-updated_at')
+    serializedData = InvoiceSerializer(invoices, many=True)
+
+    return Response({
+        'status_code': status.HTTP_200_OK,
+        'transactions': serializedData.data
+    })
+
+@api_view(['GET'])
+def getNotPayInvoice(request):
+    
+    invoices = Invoice.objects.filter(is_pay=False).order_by('-updated_at')
     serializedData = InvoiceSerializer(invoices, many=True)
 
     return Response({

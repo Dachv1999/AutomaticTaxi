@@ -10,7 +10,7 @@ class EnterpriseSerializer(serializers.ModelSerializer):#clase para lo que el JS
 class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Invoice
-        fields = ['nit','id_empresa','service_desc','price','is_pay','created_at','updated_at']
+        fields = ['id','nit','id_empresa','service_desc','price','is_pay','created_at','updated_at']
         read_only_fields = ('created_at', 'updated_at',)
 
 class AllInvoiceSerializer(serializers.ModelSerializer):
