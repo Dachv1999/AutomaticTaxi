@@ -8,7 +8,8 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Invoice, Enterprise
+from .models import Enterprise
+from ManageVehicles.models import Invoice
 from .serializers import InvoiceSerializer, AllInvoiceSerializer, InvoiceSerializer
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse

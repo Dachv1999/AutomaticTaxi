@@ -1,4 +1,5 @@
-from .models import Enterprise, Invoice, Invoice_extended
+from .models import Enterprise
+from ManageVehicles.models import  Invoice, Invoice_extended
 from rest_framework import serializers
 
 class EnterpriseSerializer(serializers.ModelSerializer):#clase para lo que el JSON devolvera
@@ -10,7 +11,7 @@ class EnterpriseSerializer(serializers.ModelSerializer):#clase para lo que el JS
 class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Invoice
-        fields = ['id','nit','id_empresa','service_desc','price','is_pay','created_at','updated_at']
+        fields = ['id','nit','id_empresa','service_desc','price','plate','is_pay','created_at','updated_at']
         read_only_fields = ('created_at', 'updated_at',)
 
 class AllInvoiceSerializer(serializers.ModelSerializer):

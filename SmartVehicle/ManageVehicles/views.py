@@ -5,6 +5,7 @@ import pytz
 from django.shortcuts import render
 from rest_framework import status
 from django.utils import timezone
+from django.db.models import Q
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
@@ -12,9 +13,9 @@ from datetime import datetime, timedelta
 
 
 
-from .models import Vehicle, Transaction
+from .models import Vehicle, Transaction, Invoice
 from .serializers import TransactionSerializer, AllTransactionSerializer
-from ManageEnterprise.models import Enterprise, Invoice
+from ManageEnterprise.models import Enterprise
 from ManageCounts.models import Person
 from ManageEnterprise.serializers import InvoiceSerializer
 import random
@@ -276,6 +277,7 @@ def sendToTechnician(fail_list, plate):
         invoice.service_desc += error +": "+ str(aux) + "Bs.\n"
 
     invoice.price = price
+    invoice.plate = plate
     price_eth = (price/6.92)/obtener_precio_eth()    
 
     invoice.save()
@@ -335,7 +337,7 @@ def repairFails(request):
     vehicle.save()
     invoice.save()
 
-    price_eth = (invoice.price/6.92)/obtener_precio_eth()  
+    price_eth = (float(invoice.price)/6.92)/obtener_precio_eth()  
     execute_smartContract(price_eth)
     return Response({
         'status_code': status.HTTP_202_ACCEPTED,
@@ -459,3 +461,62 @@ def congruential_mix(m):
    
     result = (a * seed + c) % m
     return result
+
+
+@api_view(['GET'])
+def search_Transactions(request):
+    received_json_data = json.loads(request.body.decode("utf-8")) #Obtener el JSON
+    
+    ci         = received_json_data.get('ci')
+    plate      = received_json_data.get('plate_vehicle')
+    type       = received_json_data.get('travel_type')
+    start_date = received_json_data.get('start_date')
+    end_date   = received_json_data.get('end_date')
+
+    transaccions = Transaction.objects.all()
+
+    if ci:
+        transaccions = transaccions.filter(customer=ci)
+    if plate:
+        transaccions = transaccions.filter(plate_vehicle=plate)
+    if type:
+        transaccions = transaccions.filter(travel_type =type)
+    if start_date:
+        transaccions = transaccions.filter(created_at__gte=start_date)
+    if end_date:
+        transaccions = transaccions.filter(created_at__lte=end_date)
+
+    serializedUser = TransactionSerializer(transaccions, many=True)
+
+    return Response({
+        'transacciones': serializedUser.data
+    })
+
+@api_view(['GET'])
+def search_Invoices(request):
+    received_json_data = json.loads(request.body.decode("utf-8")) #Obtener el JSON
+    
+    nit         = received_json_data.get('nit')
+    descripcion = received_json_data.get('description')
+    plate       = received_json_data.get('plate')
+    start_date  = received_json_data.get('start_date')
+    end_date    = received_json_data.get('end_date')
+
+    invoices = Invoice.objects.all()
+
+    if nit:
+        invoices = invoices.filter(nit__contains=nit)
+    if descripcion:
+        invoices = invoices.filter(service_desc__contains=descripcion)
+    if plate:
+        invoices = invoices.filter(plate=plate)
+    if start_date:
+        invoices = invoices.filter(created_at__gte=start_date)
+    if end_date:
+        invoices = invoices.filter(created_at__lte=end_date)
+
+    serializedUser = InvoiceSerializer(invoices, many=True)
+
+    return Response({
+        'invoices': serializedUser.data
+    })
