@@ -103,6 +103,7 @@ def create_report_invoice(request, start_date, end_date):
 
    for i in invoices:
       pdf.chapter_body("NIT: " + i.nit)
+      pdf.chapter_body("Plate: " + i.plate)
       pdf.chapter_body("Company Name: " + i.id_empresa.enterprise_name)
       pdf.chapter_body("Creation Date: " + str(i.created_at))
       pdf.chapter_body_line("Service Description: " + i.service_desc)

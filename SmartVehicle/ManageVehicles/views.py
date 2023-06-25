@@ -337,8 +337,8 @@ def repairFails(request):
     vehicle.save()
     invoice.save()
 
-    price_eth = (float(invoice.price)/6.92)/obtener_precio_eth()  
-    execute_smartContract(price_eth)
+    #price_eth = (float(invoice.price)/6.92)/obtener_precio_eth()  
+    #execute_smartContract(price_eth)
     return Response({
         'status_code': status.HTTP_202_ACCEPTED,
         'msg': 'Vehiculo reparado'
@@ -463,7 +463,7 @@ def congruential_mix(m):
     return result
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def search_Transactions(request):
     received_json_data = json.loads(request.body.decode("utf-8")) #Obtener el JSON
     
@@ -492,7 +492,7 @@ def search_Transactions(request):
         'transacciones': serializedUser.data
     })
 
-@api_view(['GET'])
+@api_view(['POST'])
 def search_Invoices(request):
     received_json_data = json.loads(request.body.decode("utf-8")) #Obtener el JSON
     
@@ -519,4 +519,14 @@ def search_Invoices(request):
 
     return Response({
         'invoices': serializedUser.data
+    })
+
+@api_view(['GET'])
+def allTransactions(request):
+    transaccions = Transaction.objects.all()
+
+    serializedUser = TransactionSerializer(transaccions, many=True)
+
+    return Response({
+        'transacciones': serializedUser.data
     })
