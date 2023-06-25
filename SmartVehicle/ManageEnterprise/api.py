@@ -1,4 +1,5 @@
-from .models import Enterprise, Invoice
+from .models import Enterprise
+from ManageVehicles.models import Invoice
 from rest_framework import viewsets, permissions
 from .serializers import EnterpriseSerializer, InvoiceSerializer
 
@@ -12,6 +13,6 @@ class EnterpriseViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
 
 class InvoiceViewSet(viewsets.ModelViewSet):
-    queryset = Invoice.objects.all().order_by('nit')
+    queryset = Invoice.objects.all().order_by('id')
     serializer_class   = InvoiceSerializer
     permission_classes = [permissions.AllowAny]

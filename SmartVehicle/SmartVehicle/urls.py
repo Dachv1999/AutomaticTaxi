@@ -6,8 +6,8 @@ from ManageEnterprise.router import router_enterprise, router_invoice
 from ManageEnterprise.views import create_pdf
 from ManageVehicles.router import router_vehicle, router_transaction
 from ManageCounts.views import login, logout, register
-from ManageEnterprise.views import getPayInvoice, create_report_invoice
-from ManageVehicles.views import getPriceTravel, endTravelplate, repairFails, startTravel, getAllTransaction, update_locations_randomly
+from ManageEnterprise.views import getPayInvoice, create_report_invoice, getNotPayInvoice
+from ManageVehicles.views import getPriceTravel, endTravelplate, repairFails, startTravel, getAllTransaction, update_locations_randomly, search_Invoices, search_Transactions, allTransactions
 
 register_converter(converters.FloatUrlParameterConverter, 'float')
 
@@ -29,9 +29,13 @@ urlpatterns = [
     path('repair/', repairFails),
 
     path('getAllTransaction/<int:ci_user>/', getAllTransaction),
+    path('allTransactions/', allTransactions),
     path('getPayInvoice/', getPayInvoice),
+    path('getNotPayInvoice/', getNotPayInvoice),
     path('createpdf/<int:id_invoice>/', create_pdf),
     path('updatelocations/', update_locations_randomly),
-    path('create_report_invoice/<str:start_date>/<str:end_date>/', create_report_invoice)
+    path('create_report_invoice/<str:start_date>/<str:end_date>/', create_report_invoice),
+    path('searchTransacciones/', search_Transactions),
+    path('searchInvoice/', search_Invoices),
     
 ]

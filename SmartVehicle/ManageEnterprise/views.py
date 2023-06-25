@@ -8,7 +8,8 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Invoice, Enterprise
+from .models import Enterprise
+from ManageVehicles.models import Invoice
 from .serializers import InvoiceSerializer, AllInvoiceSerializer, InvoiceSerializer
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
@@ -16,7 +17,18 @@ from django.http import HttpResponse, JsonResponse
 @api_view(['GET'])
 def getPayInvoice(request):
     
-    invoices = Invoice.objects.filter(is_pay=True).order_by('updated_at')
+    invoices = Invoice.objects.filter(is_pay=True).order_by('-updated_at')
+    serializedData = InvoiceSerializer(invoices, many=True)
+
+    return Response({
+        'status_code': status.HTTP_200_OK,
+        'transactions': serializedData.data
+    })
+
+@api_view(['GET'])
+def getNotPayInvoice(request):
+    
+    invoices = Invoice.objects.filter(is_pay=False).order_by('-updated_at')
     serializedData = InvoiceSerializer(invoices, many=True)
 
     return Response({
@@ -91,6 +103,7 @@ def create_report_invoice(request, start_date, end_date):
 
    for i in invoices:
       pdf.chapter_body("NIT: " + i.nit)
+      pdf.chapter_body("Plate: " + i.plate)
       pdf.chapter_body("Company Name: " + i.id_empresa.enterprise_name)
       pdf.chapter_body("Creation Date: " + str(i.created_at))
       pdf.chapter_body_line("Service Description: " + i.service_desc)
